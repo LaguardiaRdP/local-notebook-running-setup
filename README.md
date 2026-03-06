@@ -11,6 +11,7 @@ local-notebook-running-setup/
 ├── example_notebook.ipynb  # Start here: run a query, explore results
 ├── bigquery_adapter.py     # Query runner with local CSV caching (no edits needed)
 ├── requirements.txt        # Python dependencies
+├── .env.localrunner        # Your credentials — copy it here from your local machine
 ├── queries/
 │   └── example_query.sql   # Drop any .sql file here and point the notebook at it
 └── bq_cache/
