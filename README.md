@@ -28,7 +28,7 @@ local-notebook-running-setup/
 pip install -r requirements.txt
 ```
 
-### 2. Add your credentials
+### 2. **Add your credentials** - ⚠️ IMPORTANT ⚠️
 
 Copy your `.env.localrunner` file into the root of this folder. The notebook loads it automatically.
 
