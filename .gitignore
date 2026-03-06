@@ -1,0 +1,19 @@
+# Credentials — never commit
+.env.localrunner
+
+# Cached results
+bq_cache/*
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+venv/
+.venv/
+
+# macOS
+.DS_Store
