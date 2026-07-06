@@ -20,6 +20,9 @@ if not creds_json:
 service_account_bq = json.loads(creds_json)
 credentials = service_account.Credentials.from_service_account_info(service_account_bq)
 
+# Project ID is read from the service account credentials.
+PROJECT_ID = service_account_bq.get("project_id")
+
 CACHE_DIR = os.path.join(os.getcwd(), "bq_cache")
 HASH_MAP_PATH = os.path.join(CACHE_DIR, "hash_map.txt")
 
@@ -39,6 +42,31 @@ def _save_hash_map(mapping: dict) -> None:
     os.makedirs(CACHE_DIR, exist_ok=True)
     with open(HASH_MAP_PATH, "w") as f:
         json.dump(mapping, f, indent=2)
+
+
+def run_bq_query_string(query: str) -> pd.DataFrame:
+    """
+    Run a SQL string directly against BigQuery and return the results as a DataFrame.
+
+    Handy for small, ad-hoc queries you'd rather read inline in the notebook than
+    keep in a separate .sql file. Unlike run_bq_query, results are NOT cached.
+
+    Params:
+    -------
+    query: str
+        The SQL query to run.
+
+    Returns:
+    --------
+    pandas.DataFrame
+        The results of the query as a pandas DataFrame.
+    """
+    return pandas_gbq.read_gbq(
+        query,
+        project_id=PROJECT_ID,
+        credentials=credentials,
+        progress_bar_type="tqdm",
+    )
 
 
 def run_bq_query(filepath: str, full_refresh: bool = False, show_head: bool = True):
@@ -66,9 +94,6 @@ def run_bq_query(filepath: str, full_refresh: bool = False, show_head: bool = Tr
     with open(filepath) as f:
         query = f.read()
     name = os.path.splitext(os.path.basename(filepath))[0]
-
-    # Project ID is read from the service account credentials.
-    project_id = service_account_bq.get("project_id")
     csv_path = os.path.join(CACHE_DIR, f"{name}.csv")
     current_hash = _get_query_hash(query)
 
@@ -78,14 +103,10 @@ def run_bq_query(filepath: str, full_refresh: bool = False, show_head: bool = Tr
             df = pd.read_csv(csv_path)
             if show_head:
                 display(df.head())
+                display(f"{df.shape[0]} rows, {df.shape[1]} columns")
             return df
 
-    df = pandas_gbq.read_gbq(
-        query,
-        project_id=project_id,
-        credentials=credentials,
-        progress_bar_type="tqdm",
-    )
+    df = run_bq_query_string(query)
     os.makedirs(CACHE_DIR, exist_ok=True)
     df.to_csv(csv_path, index=False)
 
@@ -95,4 +116,5 @@ def run_bq_query(filepath: str, full_refresh: bool = False, show_head: bool = Tr
 
     if show_head:
         display(df.head())
+        display(f"{df.shape[0]} rows, {df.shape[1]} columns")
     return df

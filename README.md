@@ -64,3 +64,12 @@ Delete the `bq_cache/` folder at any time to clear all cached results.
 
 - `.env.localrunner` lives outside the repo (in the parent folder), so it's never tracked by git. It's also listed in `.gitignore` as a safety net.
 - Add as many `.sql` files as you like to `queries/` and call each one with `run_bq_query`.
+- For small, one-off queries you'd rather keep inline, use `run_bq_query_string` instead of creating a `.sql` file:
+
+  ```python
+  from bigquery_adapter import run_bq_query_string
+
+  df = run_bq_query_string("SELECT 1 AS n")
+  ```
+
+  Inline string queries are **not cached** — use file-based `run_bq_query` for anything expensive you'll re-run.
