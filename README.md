@@ -7,16 +7,22 @@ A minimal template for running BigQuery queries locally inside a Jupyter noteboo
 ## Folder Structure
 
 ```
-local-notebook-running-setup/
-├── example_notebook.ipynb  # Start here: run a query, explore results
-├── bigquery_adapter.py     # Query runner with local CSV caching (no edits needed)
-├── requirements.txt        # Python dependencies
-├── .env.localrunner        # Your credentials — copy it here from your local machine
-├── queries/
-│   └── example_query.sql   # Drop any .sql file here and point the notebook at it
-└── bq_cache/
-    └── hash_map.txt        # Tracks query hashes for cache invalidation (auto-managed)
+notebooks/                      # Your working folder (the parent)
+├── .env.localrunner            # Your credentials — SHARED by every cloned copy below
+├── local-notebook-running-setup/
+│   ├── example_notebook.ipynb  # Start here: run a query, explore results
+│   ├── bigquery_adapter.py     # Query runner with local CSV caching (no edits needed)
+│   ├── env_loader.py           # Loads ../.env.localrunner into the environment (no edits needed)
+│   ├── requirements.txt        # Python dependencies
+│   ├── queries/
+│   │   └── example_query.sql   # Drop any .sql file here and point the notebook at it
+│   └── bq_cache/
+│       └── hash_map.txt        # Tracks query hashes for cache invalidation (auto-managed)
+└── local-notebook-running-setup-2/   # Clone as many copies as you like — all share ../.env.localrunner
+    └── ...
 ```
+
+The notebook loads `.env.localrunner` from the **parent folder** (one level up from the repo), so you only keep one credentials file and every clone reuses it.
 
 ---
 
@@ -30,7 +36,7 @@ pip install -r requirements.txt
 
 ### 2. **Add your credentials** - ⚠️ IMPORTANT ⚠️
 
-Copy your `.env.localrunner` file into the root of this folder. The notebook loads it automatically.
+Place your `.env.localrunner` file in the **parent folder** — i.e. one level above this repo, right alongside the `local-notebook-running-setup` folder (your notebooks folder). The notebook loads it automatically from there, so every copy you clone into that folder shares the same credentials file.
 
 ### 3. Write your query
 
@@ -56,5 +62,5 @@ Delete the `bq_cache/` folder at any time to clear all cached results.
 
 ## Notes
 
-- `.env.localrunner` is excluded from git via `.gitignore` — don't commit it.
+- `.env.localrunner` lives outside the repo (in the parent folder), so it's never tracked by git. It's also listed in `.gitignore` as a safety net.
 - Add as many `.sql` files as you like to `queries/` and call each one with `run_bq_query`.
